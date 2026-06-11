@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="assets/logo.png" alt="WingUI Logo" width="120" height="120" />
+  <img src="assets/logo.png" alt="WinGit Logo" width="120" height="120" />
   
-  # WingUI
+  # WinGit
 
   ### Graphical Interface for the Windows Package Manager (winget)
 
@@ -12,7 +12,7 @@
   [![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=for-the-badge)](CONTRIBUTING.md)
 
   <p align="center">
-    WingUI provides a graphical user interface for the Windows Package Manager (winget). It enables users to browse, search, install, update, and manage their software catalog directly.
+    WinGit provides a graphical user interface for the Windows Package Manager (winget). It enables users to browse, search, install, update, and manage their software catalog directly.
   </p>
 
   [Features](#features) • [Screenshots](#screenshots) • [Requirements](#requirements) • [Development Setup](#development-setup) • [Architecture](#architecture) • [Roadmap](#roadmap)
@@ -49,7 +49,7 @@ Identify and execute software updates.
 
 ## Requirements
 
-Before running or developing WingUI, verify that your environment meets the following requirements:
+Before running or developing WinGit, verify that your environment meets the following requirements:
 *   **Operating System**: Windows 10 or Windows 11
 *   **Package Manager**: [winget CLI tool](https://learn.microsoft.com/en-us/windows/package-manager/winget/)
 *   **WebView Runtime**: WebView2 Runtime (installed by default on Windows 11; required for Windows 10)
@@ -58,7 +58,7 @@ Before running or developing WingUI, verify that your environment meets the foll
 
 ## Development Setup
 
-To build WingUI locally or contribute to the repository:
+To build WinGit locally or contribute to the repository:
 
 ### Prerequisites
 1.  **Node.js 18+** (with npm)
@@ -68,8 +68,8 @@ To build WingUI locally or contribute to the repository:
 ### Local Setup
 Clone the repository and install dependencies:
 ```bash
-git clone https://github.com/Ankits39229/wingui.git
-cd wingui
+git clone https://github.com/Ankits39229/wingit.git
+cd wingit
 npm install
 ```
 
@@ -95,7 +95,7 @@ The compiled installer package is output to: `src-tauri/target/release/bundle/`.
 
 ### Backend (`src-tauri/`)
 *   **winget CLI Integration**: Rust spawns child processes for winget commands (search, list, install, uninstall) with the `CREATE_NO_WINDOW` flag to suppress terminal window flashes.
-*   **Local Caches**: Stores package indexing, recently installed lists, and settings inside a local SQLite database (`wingui.db`).
+*   **Local Caches**: Stores package indexing, recently installed lists, and settings inside a local SQLite database (`wingit.db`).
 *   **Icon Fetching**: Resolves favicons using Clearbit/Google API fallbacks and stores them in a local disk cache (`icon_cache/`).
 
 ---
@@ -118,4 +118,4 @@ Contributions are welcome. Please read the [Contribution Guidelines](CONTRIBUTIN
 
 ## License
 
-WingUI is open-source software licensed under the **GNU General Public License v3 (GPL v3)**. See the [LICENSE](LICENSE) file for details.
+WinGit is open-source software licensed under the **GNU General Public License v3 (GPL v3)**. See the [LICENSE](LICENSE) file for details.

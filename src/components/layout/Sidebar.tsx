@@ -12,13 +12,70 @@ import {
 import { cn } from "@/utils/cn";
 import { useSettingsStore } from "@/store/settingsStore";
 
-const navItems = [
-  { to: "/", icon: Home, label: "Home" },
+const browseNav = [
+  { to: "/", icon: Home, label: "Discover" },
+  { to: "/favorites", icon: Heart, label: "Favorites" },
+];
+
+const libraryNav = [
   { to: "/installed", icon: Download, label: "Installed" },
   { to: "/updates", icon: RefreshCw, label: "Updates" },
-  { to: "/favorites", icon: Heart, label: "Favorites" },
+];
+
+const systemNav = [
   { to: "/settings", icon: Settings, label: "Settings" },
 ];
+
+interface NavGroupProps {
+  label: string;
+  items: typeof browseNav;
+  collapsed: boolean;
+}
+
+function NavGroup({ label, items, collapsed }: NavGroupProps) {
+  return (
+    <div className="flex flex-col gap-0.5">
+      {!collapsed && (
+        <p className="mb-0.5 px-3 text-[10px] font-semibold uppercase tracking-widest text-sidebar-muted/60">
+          {label}
+        </p>
+      )}
+      {items.map(({ to, icon: Icon, label: itemLabel }) => (
+        <NavLink
+          key={to}
+          to={to}
+          end={to === "/"}
+          title={collapsed ? itemLabel : undefined}
+          className={({ isActive }) =>
+            cn(
+              "relative flex w-full items-center rounded-md py-2 text-sm font-medium",
+              "transition-colors duration-[140ms] ease-out",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              collapsed ? "justify-center px-2" : "gap-3 px-3",
+              isActive
+                ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                : "text-sidebar-muted hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+            )
+          }
+        >
+          {({ isActive }) => (
+            <>
+              {/* Active indicator pill */}
+              {isActive && (
+                <span
+                  className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-primary"
+                  aria-hidden
+                />
+              )}
+              <Icon className="h-4 w-4 shrink-0" />
+              {!collapsed && <span className="truncate">{itemLabel}</span>}
+            </>
+          )}
+        </NavLink>
+      ))}
+    </div>
+  );
+}
 
 export function Sidebar() {
   const collapsed = useSettingsStore((s) => s.sidebarCollapsed);
@@ -38,49 +95,49 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "flex h-full flex-col border-r border-border bg-sidebar transition-[width] duration-200",
-        collapsed ? "w-[64px]" : "w-56",
+        "flex h-full flex-col border-r border-border bg-sidebar",
+        "transition-[width] duration-[240ms] ease-[cubic-bezier(0.32,0.72,0,1)]",
+        collapsed ? "w-[52px]" : "w-52",
       )}
     >
-      <nav className="flex flex-1 flex-col gap-0.5 p-2 pt-3" aria-label="Main navigation">
-        {navItems.map(({ to, icon: Icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === "/"}
-            title={collapsed ? label : undefined}
-            className={({ isActive }) =>
-              cn(
-                "flex w-full items-center rounded-lg py-2 text-sm font-medium transition-colors",
-                collapsed ? "justify-center px-0" : "gap-3 px-3",
-                isActive
-                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
-                  : "text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              )
-            }
-          >
-            <Icon className="h-[18px] w-[18px] shrink-0" />
-            {!collapsed && <span className="truncate">{label}</span>}
-          </NavLink>
-        ))}
+      <nav
+        className={cn(
+          "flex flex-1 flex-col gap-4 overflow-y-auto",
+          collapsed ? "p-1.5 pt-3" : "p-2 pt-3",
+        )}
+        aria-label="Main navigation"
+      >
+        <NavGroup label="Browse" items={browseNav} collapsed={collapsed} />
+        <NavGroup label="Library" items={libraryNav} collapsed={collapsed} />
+        <div className="flex-1" />
+        <NavGroup label="System" items={systemNav} collapsed={collapsed} />
       </nav>
 
       {!collapsed && (
-        <p className="px-4 pb-1 text-[10px] text-sidebar-muted/50">v0.1.0</p>
+        <p className="px-4 pb-1 text-[10px] text-sidebar-muted/40">v0.1.0</p>
       )}
 
       <button
         type="button"
         onClick={toggle}
         className={cn(
-          "m-2 flex items-center rounded-lg p-2 text-sidebar-muted transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+          "m-1.5 flex items-center rounded-md p-2 text-sidebar-muted",
+          "transition-colors duration-[140ms] hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "active:scale-[0.97]",
           collapsed ? "justify-center" : "gap-2",
         )}
         aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         title={collapsed ? "Expand (Ctrl+B)" : "Collapse (Ctrl+B)"}
       >
-        {collapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
-        {!collapsed && <span className="text-xs font-medium">Collapse</span>}
+        {collapsed ? (
+          <PanelLeft className="h-4 w-4" />
+        ) : (
+          <>
+            <PanelLeftClose className="h-4 w-4" />
+            <span className="text-xs font-medium">Collapse</span>
+          </>
+        )}
       </button>
     </aside>
   );

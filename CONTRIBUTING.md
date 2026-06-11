@@ -1,6 +1,6 @@
-# Contributing to WingUI
+# Contributing to WinGit
 
-Thank you for considering contributing to WingUI. Contributions from the community help improve this software.
+Thank you for considering contributing to WinGit. Contributions from the community help improve this software.
 
 By contributing to this project, you agree to abide by our Code of Conduct and standard open-source conventions.
 
@@ -30,13 +30,13 @@ By contributing to this project, you agree to abide by our Code of Conduct and s
 
 ### Reporting Bugs
 
-Before submitting a bug report, please check the [issues list](https://github.com/Ankits39229/wingui/issues) to verify if the issue has already been reported.
+Before submitting a bug report, please check the [issues list](https://github.com/Ankits39229/wingit/issues) to verify if the issue has already been reported.
 
 When opening a new issue, please include:
 - A clear and descriptive title.
 - Steps to reproduce the bug.
 - The expected behavior vs. actual behavior.
-- Your environment details (Windows version, Winget version, WingUI version).
+- Your environment details (Windows version, Winget version, WinGit version).
 - Relevant log output or screenshots.
 
 ### Suggesting Enhancements
@@ -58,7 +58,7 @@ If you have suggestions for new features:
 
 ### Prerequisites
 
-To build WingUI locally, you need the following dependencies installed on your Windows system:
+To build WinGit locally, you need the following dependencies installed on your Windows system:
 1. **Windows 10 or 11** with the [winget command line utility](https://learn.microsoft.com/en-us/windows/package-manager/winget/) installed.
 2. **Node.js 18+** (including npm).
 3. **Rust & Cargo** (via [rustup](https://rustup.rs/)).
@@ -69,8 +69,8 @@ To build WingUI locally, you need the following dependencies installed on your W
 
 1. **Clone the Repository**
    ```bash
-   git clone https://github.com/Ankits39229/wingui.git
-   cd wingui
+   git clone https://github.com/Ankits39229/wingit.git
+   cd wingit
    ```
 
 2. **Install Dependencies**
@@ -94,7 +94,7 @@ To build WingUI locally, you need the following dependencies installed on your W
 
 ## Project Architecture
 
-WingUI consists of two primary modules working together via Tauri IPC:
+WinGit consists of two primary modules working together via Tauri IPC:
 
 ### Frontend (React + Vite)
 - Located in `src/`
@@ -103,7 +103,7 @@ WingUI consists of two primary modules working together via Tauri IPC:
 
 ### Backend (Tauri + Rust)
 - Located in `src-tauri/`
-- Interacts with the local SQLite database (`wingui.db`) for caching package listings and user settings.
+- Interacts with the local SQLite database (`wingit.db`) for caching package listings and user settings.
 - Executes `winget` CLI commands under the hood with `CREATE_NO_WINDOW` flags to ensure a seamless UI-only experience.
 
 ---
@@ -144,4 +144,4 @@ We follow a semantic commit message convention (similar to Angular). This helps 
 
 ## License
 
-By contributing to WingUI, you agree that your contributions will be licensed under the **GNU General Public License v3 (GPL v3)**.
+By contributing to WinGit, you agree that your contributions will be licensed under the **GNU General Public License v3 (GPL v3)**.

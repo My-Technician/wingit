@@ -1,5 +1,5 @@
 {
-  "name": "wingui",
+  "name": "wingit",
   "description": "Modern graphical interface for Windows Package Manager (winget)",
   "private": true,
   "version": "0.1.0",

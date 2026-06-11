@@ -35,7 +35,10 @@ test-winget-out.txt
 # Tauri / Rust
 src-tauri/target/
 pika.md
+skills-lock.json
 CLAUDE.md
+.claude/
+.agents/
 
 #msix
 msix-guide/

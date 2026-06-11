@@ -28,7 +28,7 @@ export function AppIcon({ packageId, name, website, className }: AppIconProps) {
         const fetched = await api.fetchPackageIcon(packageId, website);
         if (fetched && !cancelled) setSrc(convertFileSrc(fetched));
       } catch {
-        /* ignore icon errors */
+        if (!cancelled) setError(true);
       }
     })();
     return () => {
@@ -36,18 +36,21 @@ export function AppIcon({ packageId, name, website, className }: AppIconProps) {
     };
   }, [packageId, website]);
 
-  if (error || !src) {
+  if (!src) {
     return (
       <div
         className={cn(
-          "relative flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted",
+          "relative flex shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted",
           className,
         )}
       >
-        {!src && !error && (
-          <div className="absolute inset-0 skeleton-shimmer rounded-xl" />
+        {!error && (
+          <div className="absolute inset-0 skeleton-shimmer" />
         )}
-        <Package className="h-1/2 w-1/2 text-muted-foreground" strokeWidth={1.5} />
+        <Package
+          className="relative h-1/2 w-1/2 text-muted-foreground/60"
+          strokeWidth={1.5}
+        />
       </div>
     );
   }
@@ -55,22 +58,23 @@ export function AppIcon({ packageId, name, website, className }: AppIconProps) {
   return (
     <div
       className={cn(
-        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted",
+        "relative flex shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted",
         className,
       )}
     >
-      {!loaded && (
-        <div className="absolute inset-0 skeleton-shimmer rounded-xl" />
-      )}
+      {!loaded && <div className="absolute inset-0 skeleton-shimmer" />}
       <img
         src={src}
         alt={`${name} icon`}
         className={cn(
-          "h-full w-full object-contain transition-opacity duration-300",
+          "h-full w-full object-contain transition-opacity duration-[200ms] ease-out",
           loaded ? "opacity-100" : "opacity-0",
         )}
         onLoad={() => setLoaded(true)}
-        onError={() => setError(true)}
+        onError={() => {
+          setError(true);
+          setSrc(null);
+        }}
         loading="lazy"
       />
     </div>

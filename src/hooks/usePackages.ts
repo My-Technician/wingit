@@ -42,3 +42,11 @@ export function useCatalogRefresh() {
     retry: 1,
   });
 }
+
+export function useRecentlyInstalled(limit = 8) {
+  return useQuery({
+    queryKey: ["packages", "recently-installed", limit],
+    queryFn: () => api.getRecentlyInstalled(limit),
+    staleTime: 5 * 60 * 1000,
+  });
+}

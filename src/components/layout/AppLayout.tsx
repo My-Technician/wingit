@@ -13,7 +13,7 @@ export function AppLayout() {
         <Sidebar />
         <div className="flex min-w-0 flex-1 flex-col">
           <TopBar />
-          <main className="flex-1 overflow-hidden px-6 py-5">
+          <main className="flex-1 overflow-hidden pl-5 pr-2 py-5">
             <ErrorBoundary>
               <Outlet />
             </ErrorBoundary>

@@ -33,12 +33,12 @@ export function FavoritesPage() {
       <EmptyState
         icon={Heart}
         title="No favorites yet"
-        description="Click the heart on any app card to save it here for quick access."
+        description="Click the heart icon on any app card to save it here."
       />
     );
 
   return (
-    <div className="flex h-full flex-col gap-6 overflow-hidden">
+    <div className="flex h-full flex-col gap-5 overflow-hidden">
       <PageHeader
         title="Favorites"
         description={`${favorites.length} saved app${favorites.length === 1 ? "" : "s"}`}

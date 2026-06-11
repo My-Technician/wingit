@@ -67,6 +67,15 @@ fn metadata_to_winget(meta: PackageMetadata) -> WingetPackage {
         category: meta.category,
         installed: false,
         available_version: None,
+        license: None,
+        license_url: None,
+        author: None,
+        moniker: None,
+        release_notes: None,
+        release_date: None,
+        publisher_url: None,
+        support_url: None,
+        privacy_url: None,
     }
 }
 

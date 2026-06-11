@@ -10,6 +10,16 @@ export interface WingetPackage {
   category?: string;
   installed: boolean;
   availableVersion?: string;
+  // Rich metadata — populated by show_package only
+  license?: string;
+  licenseUrl?: string;
+  author?: string;
+  moniker?: string;
+  releaseNotes?: string;
+  releaseDate?: string;
+  publisherUrl?: string;
+  supportUrl?: string;
+  privacyUrl?: string;
 }
 
 export interface PackageMetadata {

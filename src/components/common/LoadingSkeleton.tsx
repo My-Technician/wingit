@@ -1,7 +1,7 @@
 /* Card-grid skeleton used by HomePage / Discover */
 export function AppCardSkeleton() {
   return (
-    <div className="rounded-xl border border-border bg-card p-4">
+    <div className="rounded-lg border border-border bg-card p-4">
       <div className="mb-3 h-10 w-10 rounded-lg skeleton-shimmer" />
       <div className="mb-2 h-4 w-3/4 rounded skeleton-shimmer" />
       <div className="mb-3 h-3 w-1/2 rounded skeleton-shimmer" />
@@ -33,7 +33,7 @@ export function PageHeaderSkeleton() {
 /* List-row skeletond by InstalledPage / UpdatesPage */
 function ListRowSkeleton({ wide }: { wide?: boolean }) {
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4">
+    <div className="flex items-center gap-4 rounded-lg border border-border bg-card p-4">
       <div className="h-10 w-10 shrink-0 rounded-lg skeleton-shimmer" />
       <div className="flex-1 space-y-2">
         <div className="h-4 w-44 rounded skeleton-shimmer" />

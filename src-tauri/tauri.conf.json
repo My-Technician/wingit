@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "WingUI",
+  "productName": "WinGit",
   "version": "0.1.0",
-  "identifier": "com.ankit.wingui",
+  "identifier": "com.ankit.wingit",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,14 +12,15 @@
   "app": {
     "windows": [
       {
-        "title": "WingUI",
+        "title": "WinGit",
         "width": 1280,
         "height": 800,
         "minWidth": 960,
         "minHeight": 640,
         "decorations": false,
         "shadow": true,
-        "transparent": false
+        "transparent": false,
+        "dragDropEnabled": false
       }
     ],
     "security": {

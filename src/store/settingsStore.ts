@@ -16,6 +16,8 @@ interface SettingsState {
   applyTheme: () => void;
   syncToBackend: () => Promise<void>;
   loadFromBackend: () => Promise<void>;
+  /** Call once on app mount. Returns cleanup fn. */
+  setupThemeListener: () => () => void;
 }
 
 function resolveTheme(theme: Theme): "light" | "dark" {
@@ -59,6 +61,17 @@ export const useSettingsStore = create<SettingsState>()(
         document.documentElement.classList.toggle("dark", resolved === "dark");
       },
 
+      setupThemeListener: () => {
+        const mq = window.matchMedia("(prefers-color-scheme: dark)");
+        const handler = () => {
+          if (get().theme === "system") {
+            get().applyTheme();
+          }
+        };
+        mq.addEventListener("change", handler);
+        return () => mq.removeEventListener("change", handler);
+      },
+
       syncToBackend: async () => {
         const { theme, autoUpdateCheck, concurrentDownloads } = get();
         await api.setSetting("theme", theme);
@@ -86,6 +99,6 @@ export const useSettingsStore = create<SettingsState>()(
         }
       },
     }),
-    { name: "wingui-settings" },
+    { name: "wingit-settings" },
   ),
 );

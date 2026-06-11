@@ -32,7 +32,7 @@ pub struct Database {
 impl Database {
     pub fn new(app_data_dir: PathBuf) -> Result<Self, String> {
         std::fs::create_dir_all(&app_data_dir).map_err(|e| e.to_string())?;
-        let db_path = app_data_dir.join("wingui.db");
+        let db_path = app_data_dir.join("wingit.db");
         let conn = Connection::open(db_path).map_err(|e| e.to_string())?;
         let db = Self {
             conn: Mutex::new(conn),

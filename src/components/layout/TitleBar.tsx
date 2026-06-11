@@ -41,8 +41,9 @@ export function TitleBar() {
       {/* Brand section width mirrors sidebar */}
       <div
         className={cn(
-          "flex h-full shrink-0 items-center gap-2 overflow-hidden transition-[width] duration-200",
-          collapsed ? "w-[64px] justify-center px-0" : "w-56 px-4",
+          "flex h-full shrink-0 items-center gap-2 overflow-hidden",
+          "transition-[width] duration-[240ms] ease-[cubic-bezier(0.32,0.72,0,1)]",
+          collapsed ? "w-[52px] justify-center px-0" : "w-52 px-4",
         )}
         data-tauri-drag-region
         onMouseDown={handleDragMouseDown}
@@ -51,11 +52,11 @@ export function TitleBar() {
         <img
           src="/brand-mark.png"
           alt=""
-          className="h-5 w-5 shrink-0 rounded-md object-cover"
+          className="h-5 w-5 shrink-0 rounded-md object-cover pointer-events-none"
         />
         {!collapsed && (
           <span className="truncate text-xs font-semibold tracking-tight text-sidebar-foreground">
-            WingUI
+            WinGit
           </span>
         )}
       </div>

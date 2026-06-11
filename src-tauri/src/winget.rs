@@ -29,6 +29,16 @@ pub struct WingetPackage {
     pub category: Option<String>,
     pub installed: bool,
     pub available_version: Option<String>,
+    // Rich metadata — populated only by show_package / parse_show_from_text
+    pub license: Option<String>,
+    pub license_url: Option<String>,
+    pub author: Option<String>,
+    pub moniker: Option<String>,
+    pub release_notes: Option<String>,
+    pub release_date: Option<String>,
+    pub publisher_url: Option<String>,
+    pub support_url: Option<String>,
+    pub privacy_url: Option<String>,
 }
 
 fn winget_command() -> Command {
@@ -170,6 +180,18 @@ fn parse_packages_from_json(raw: &str) -> Result<Vec<WingetPackage>, String> {
         if id.is_empty() {
             continue;
         }
+        // Parse tags from JSON (array of strings)
+        let tags: Option<Vec<String>> = pkg
+            .get("Tags")
+            .and_then(|v| v.as_array())
+            .map(|arr| {
+                arr.iter()
+                    .filter_map(|t| t.as_str())
+                    .map(String::from)
+                    .collect()
+            })
+            .filter(|v: &Vec<String>| !v.is_empty());
+
         result.push(with_inferred_publisher(WingetPackage {
             id: id.clone(),
             name: pkg
@@ -197,13 +219,25 @@ fn parse_packages_from_json(raw: &str) -> Result<Vec<WingetPackage>, String> {
                 .or_else(|| pkg.get("Homepage"))
                 .and_then(|v| v.as_str())
                 .map(String::from),
-            tags: None,
-            category: None,
+            tags,
+            category: pkg
+                .get("Category")
+                .and_then(|v| v.as_str())
+                .map(String::from),
             installed: false,
             available_version: pkg
                 .get("AvailableVersion")
                 .and_then(|v| v.as_str())
                 .map(String::from),
+            license: None,
+            license_url: None,
+            author: None,
+            moniker: None,
+            release_notes: None,
+            release_date: None,
+            publisher_url: None,
+            support_url: None,
+            privacy_url: None,
         }));
     }
     Ok(result)
@@ -278,6 +312,15 @@ fn parse_packages_from_table(raw: &str) -> Result<Vec<WingetPackage>, String> {
             category: None,
             installed: false,
             available_version,
+            license: None,
+            license_url: None,
+            author: None,
+            moniker: None,
+            release_notes: None,
+            release_date: None,
+            publisher_url: None,
+            support_url: None,
+            privacy_url: None,
         }));
     }
 
@@ -544,7 +587,7 @@ fn is_show_field_line(line: &str) -> bool {
     re.is_match(line.trim())
 }
 
-/// Parse plain-text output from `winget show` (used when JSON is unavailable).
+/// Parse plain-text output from `winget show`.
 fn parse_show_from_text(raw: &str, fallback_id: &str) -> Option<WingetPackage> {
     static FOUND_RE: OnceLock<Regex> = OnceLock::new();
     let found_re = FOUND_RE.get_or_init(|| {
@@ -553,25 +596,41 @@ fn parse_show_from_text(raw: &str, fallback_id: &str) -> Option<WingetPackage> {
 
     let mut name = String::new();
     let mut id = fallback_id.to_string();
-    let mut version = None;
-    let mut publisher = None;
-    let mut description = None;
-    let mut homepage = None;
+    let mut version: Option<String> = None;
+    let mut publisher: Option<String> = None;
+    let mut description: Option<String> = None;
+    let mut homepage: Option<String> = None;
+    let mut license: Option<String> = None;
+    let mut license_url: Option<String> = None;
+    let mut author: Option<String> = None;
+    let mut moniker: Option<String> = None;
+    let mut release_notes: Option<String> = None;
+    let mut release_date: Option<String> = None;
+    let mut publisher_url: Option<String> = None;
+    let mut support_url: Option<String> = None;
+    let mut privacy_url: Option<String> = None;
+    let mut tags: Option<Vec<String>> = None;
+
     let mut in_description = false;
+    let mut in_release_notes = false;
+    let mut in_tags = false;
     let mut description_lines: Vec<String> = Vec::new();
+    let mut release_notes_lines: Vec<String> = Vec::new();
+    let mut tag_lines: Vec<String> = Vec::new();
 
     for line in raw.lines() {
         let trimmed = line.trim();
+
         if trimmed.is_empty() {
             if in_description {
                 description_lines.push(String::new());
+            } else if in_release_notes {
+                release_notes_lines.push(String::new());
             }
             continue;
         }
-        if is_noise_line(trimmed) {
-            continue;
-        }
 
+        // Check for "Found <name> [<id>]" BEFORE noise filter — is_noise_line swallows it.
         if let Some(caps) = found_re.captures(trimmed) {
             name = caps.get(1).map(|m| m.as_str().trim().to_string()).unwrap_or_default();
             id = caps
@@ -579,35 +638,99 @@ fn parse_show_from_text(raw: &str, fallback_id: &str) -> Option<WingetPackage> {
                 .map(|m| m.as_str().trim().to_string())
                 .unwrap_or_else(|| fallback_id.to_string());
             in_description = false;
+            in_release_notes = false;
+            in_tags = false;
             continue;
         }
 
-        if in_description {
-            if is_show_field_line(trimmed) {
-                in_description = false;
-            } else {
-                description_lines.push(trimmed.to_string());
-                continue;
-            }
+        if is_noise_line(trimmed) {
+            continue;
         }
 
-        if let Some(v) = trimmed.strip_prefix("Version: ") {
-            version = Some(v.trim().to_string());
-        } else if let Some(v) = trimmed.strip_prefix("Publisher: ") {
-            publisher = Some(v.trim().to_string());
-        } else if let Some(v) = trimmed.strip_prefix("Description: ") {
-            let rest = v.trim();
-            if !rest.is_empty() {
-                description_lines.push(rest.to_string());
-            }
-            in_description = true;
-        } else if let Some(v) = trimmed.strip_prefix("Homepage: ") {
-            homepage = Some(v.trim().to_string());
+        // Stop collecting multi-line content when a new known field starts.
+        if is_show_field_line(trimmed) {
+            in_description = false;
+            in_release_notes = false;
+            in_tags = false;
         }
+
+        if in_description {
+            description_lines.push(trimmed.to_string());
+            continue;
+        }
+        if in_release_notes {
+            release_notes_lines.push(trimmed.to_string());
+            continue;
+        }
+        // Multi-line tags: each tag on its own indented line (winget output format).
+        if in_tags {
+            // A tag line is a single token (no colon at start); stop on next field.
+            if !trimmed.contains(':') || trimmed.ends_with(':') {
+                let tok = trimmed.trim_start_matches('-').trim().to_string();
+                if !tok.is_empty() {
+                    tag_lines.push(tok);
+                }
+            }
+            continue;
+        }
+
+        // Split on first ':' so padded output ("Version:    1.2") is handled correctly.
+        if let Some(colon_pos) = trimmed.find(':') {
+            let label = trimmed[..colon_pos].trim();
+            let val = trimmed[colon_pos + 1..].trim().to_string();
+            match label {
+                "Version" => version = Some(val),
+                "Publisher" => publisher = Some(val),
+                "Publisher Url" | "Publisher URL" => publisher_url = Some(val),
+                "Publisher Support Url" | "Publisher Support URL" => support_url = Some(val),
+                "Author" => author = Some(val),
+                "Moniker" => moniker = Some(val),
+                "Description" => {
+                    if !val.is_empty() {
+                        description_lines.push(val);
+                    }
+                    in_description = true;
+                }
+                "Homepage" => homepage = Some(val),
+                "License" => license = Some(val),
+                "License Url" | "License URL" => license_url = Some(val),
+                "Privacy Url" | "Privacy URL" => privacy_url = Some(val),
+                "Tags" => {
+                    if !val.is_empty() {
+                        // Single-line comma-separated tags
+                        tags = Some(
+                            val.split(',')
+                                .map(|t| t.trim().to_string())
+                                .filter(|t| !t.is_empty())
+                                .collect(),
+                        );
+                    } else {
+                        // Multi-line tags — each on its own indented line
+                        in_tags = true;
+                    }
+                }
+                "Release Date" => release_date = Some(val),
+                "Release Notes" | "Release Notes (Locale)" => {
+                    if !val.is_empty() {
+                        release_notes_lines.push(val);
+                    }
+                    in_release_notes = true;
+                }
+                _ => {}
+            }
+        }
+    }
+
+    // Finalise multi-line tags collected above
+    if !tag_lines.is_empty() && tags.is_none() {
+        tags = Some(tag_lines);
     }
 
     if !description_lines.is_empty() {
         description = Some(description_lines.join("\n").trim().to_string());
+    }
+    if !release_notes_lines.is_empty() {
+        release_notes = Some(release_notes_lines.join("\n").trim().to_string());
     }
 
     if name.is_empty() && id == fallback_id {
@@ -626,10 +749,19 @@ fn parse_show_from_text(raw: &str, fallback_id: &str) -> Option<WingetPackage> {
         publisher,
         description,
         homepage,
-        tags: None,
+        tags,
         category: None,
         installed: false,
         available_version: None,
+        license,
+        license_url,
+        author,
+        moniker,
+        release_notes,
+        release_date,
+        publisher_url,
+        support_url,
+        privacy_url,
     }))
 }
 

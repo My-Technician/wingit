@@ -3,7 +3,13 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
+  /* Typography — Segoe UI Variable (Windows native), with open-source fallbacks */
+  --font-sans: "Segoe UI Variable", "Segoe UI", ui-sans-serif, system-ui, -apple-system,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Cascadia Code", "Cascadia Mono", "Consolas", ui-monospace,
+    "SFMono-Regular", monospace;
+
+  /* Color tokens (map to CSS vars set per theme) */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -16,6 +22,9 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
   --color-ring: var(--ring);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
@@ -23,70 +32,105 @@
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-highlight: var(--highlight);
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.25rem;
+
+  /* Radius scale — Fluent-aligned (4/6/8/12/16) */
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-full: 9999px;
+
+  /* Motion — Emil Kowalski easing curves */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-press: 140ms;
+  --duration-popover: 180ms;
+  --duration-dialog: 240ms;
+  --duration-page: 220ms;
 }
 
-/* ─── Light mode ─── */
+/* ─── Light mode (Fluent Mica-lite) ─── */
 :root {
-  /* Main surface */
-  --background: #F1FAEE;
-  --foreground: #1D3557;
-  --card: #ffffff;
-  --card-foreground: #1D3557;
-  --muted: #E4F1F2;
-  --muted-foreground: #457B9D;
-  --accent: #DCEDEE;
-  --accent-foreground: #1D3557;
-  --border: #CBDFE2;
-  /* Primary action navy */
-  --primary: #1D3557;
-  --primary-foreground: #F1FAEE;
-  /* States */
-  --destructive: #C0392B;
-  --ring: #457B9D;
-  /* Search highlight */
-  --highlight: #A8DADC;
-  /* Light sidebar brand teal tint */
-  --sidebar: #E2EEF0;
-  --sidebar-foreground: #1D3557;
-  --sidebar-muted: #457B9D;
-  --sidebar-accent: #C8DDE0;
-  --sidebar-accent-foreground: #1D3557;
+  /* Layered surfaces — Layer0 < Layer1 < Layer2 */
+  --background: #F3F3F3;        /* Mica/Acrylic base canvas */
+  --foreground: #1A1A1A;        /* Off-black, never pure #000 */
+  --card: #FFFFFF;              /* Layer 1 elevated surface */
+  --card-foreground: #1A1A1A;
+  --muted: #EBEBEB;             /* Layer 0 subtle bg / section fills */
+  --muted-foreground: #6B6B6B;  /* Secondary / caption text */
+
+  /* Windows default blue accent */
+  --accent: #EFF6FF;            /* Tinted bg for accent-adjacent */
+  --accent-foreground: #0067C0;
+  --primary: #0067C0;           /* Windows blue */
+  --primary-foreground: #FFFFFF;
+
+  /* Borders — hairline, near invisible */
+  --border: rgba(0, 0, 0, 0.08);
+
+  /* Semantic states */
+  --destructive: #C42B1C;
+  --destructive-foreground: #FFFFFF;
+  --success: #107C10;
+  --warning: #9D5D00;
+  --ring: #0067C0;
+
+  /* Search highlight tint */
+  --highlight: rgba(0, 103, 192, 0.12);
+
+  /* Sidebar — slightly darker than canvas */
+  --sidebar: #EBEBEB;
+  --sidebar-foreground: #1A1A1A;
+  --sidebar-muted: #6B6B6B;
+  --sidebar-accent: rgba(0, 103, 192, 0.08);
+  --sidebar-accent-foreground: #0067C0;
+
   color-scheme: light;
 }
 
-/* ─── Dark mode ─── */
+/* ─── Dark mode (Fluent dark Mica) ─── */
 .dark {
-  /* Main surface deep navy */
-  --background: #122036;
-  --foreground: #F1FAEE;
-  --card: #1D3557;
-  --card-foreground: #F1FAEE;
-  --muted: #24405F;
-  --muted-foreground: #A8DADC;
-  --accent: #294A6B;
-  --accent-foreground: #F1FAEE;
-  --border: #2E4B6B;
-  /* Teal primary pops on dark navy */
-  --primary: #A8DADC;
-  --primary-foreground: #1D3557;
-  /* States */
-  --destructive: #E05252;
-  --ring: #A8DADC;
-  /* Search highlight */
-  --highlight: #457B9D;
-  /* Dark sidebar deep navy */
-  --sidebar: #0E1B2E;
-  --sidebar-foreground: #F1FAEE;
-  --sidebar-muted: rgba(168, 218, 220, 0.75);
-  --sidebar-accent: rgba(168, 218, 220, 0.18);
-  --sidebar-accent-foreground: #A8DADC;
+  /* Layered surfaces */
+  --background: #202020;        /* Mica dark base */
+  --foreground: #F5F5F5;        /* Off-white, never pure #fff */
+  --card: #2D2D2D;              /* Layer 1 */
+  --card-foreground: #F5F5F5;
+  --muted: #383838;             /* Layer 2 */
+  --muted-foreground: #9D9D9D;  /* Secondary text */
+
+  /* Windows dark-mode bright cyan-blue accent */
+  --accent: rgba(96, 205, 255, 0.1);
+  --accent-foreground: #60CDFF;
+  --primary: #60CDFF;
+  --primary-foreground: #1A1A1A;
+
+  /* Borders — hairline on dark */
+  --border: rgba(255, 255, 255, 0.08);
+
+  /* Semantic states */
+  --destructive: #FF99A4;
+  --destructive-foreground: #1A1A1A;
+  --success: #6CCB5F;
+  --warning: #FCE100;
+  --ring: #60CDFF;
+
+  /* Search highlight tint */
+  --highlight: rgba(96, 205, 255, 0.15);
+
+  /* Sidebar — slightly deeper than canvas */
+  --sidebar: #1B1B1B;
+  --sidebar-foreground: #F5F5F5;
+  --sidebar-muted: #9D9D9D;
+  --sidebar-accent: rgba(96, 205, 255, 0.1);
+  --sidebar-accent-foreground: #60CDFF;
+
   color-scheme: dark;
 }
 
+/* ─── Global resets ─── */
 * {
   border-color: var(--border);
 }
@@ -110,6 +154,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* ─── Search input ─── */
 .search-spotlight {
   background: var(--card);
   border: 1px solid var(--border);
@@ -118,50 +163,60 @@ body {
 
 .search-spotlight:focus-within {
   border-color: var(--ring);
+  box-shadow: 0 0 0 3px rgba(0, 103, 192, 0.08);
 }
 
+.dark .search-spotlight:focus-within {
+  box-shadow: 0 0 0 3px rgba(96, 205, 255, 0.1);
+}
+
+/* ─── Search highlight text ─── */
 .text-highlight {
   background: var(--highlight);
   color: var(--foreground);
-  border-radius: 0.2em;
-  padding: 0 0.15em;
+  border-radius: 3px;
+  padding: 0 0.12em;
   font-weight: 500;
 }
 
+/* ─── Scrollbars ─── */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(69, 123, 157, 0.25);
+  background: rgba(0, 0, 0, 0.12);
   border-radius: 999px;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(69, 123, 157, 0.45);
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
 }
 
-@keyframes pulse {
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.22);
+}
 
-  0%,
-  100% {
-    opacity: 1;
-  }
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
 
-  50% {
-    opacity: 0.5;
-  }
+/* ─── Skeleton shimmer ─── */
+@keyframes shimmer {
+  0% { opacity: 1; }
+  50% { opacity: 0.45; }
+  100% { opacity: 1; }
 }
 
 .skeleton-shimmer {
   background: var(--muted);
-  animation: pulse 1.5s ease-in-out infinite;
+  animation: shimmer 1.6s ease-in-out infinite;
 }
 
+/* ─── Range input ─── */
 input[type="range"] {
   -webkit-appearance: none;
-  -moz-appearance: none;
   appearance: none;
   height: 4px;
   border-radius: 999px;
@@ -176,6 +231,11 @@ input[type="range"]::-webkit-slider-thumb {
   border-radius: 50%;
   background: var(--primary);
   cursor: pointer;
+  transition: transform var(--duration-press) var(--ease-out);
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+  transform: scale(0.9);
 }
 
 input[type="range"]::-moz-range-thumb {
@@ -195,14 +255,15 @@ input[type="range"]:focus-visible::-moz-range-thumb {
   box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--primary);
 }
 
+/* ─── Reduced motion — gentler, not zero ─── */
+/* Keep opacity/color, remove large transforms */
 @media (prefers-reduced-motion: reduce) {
-
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
+    animation-duration: 0.15s !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0.15s !important;
     scroll-behavior: auto !important;
   }
 }

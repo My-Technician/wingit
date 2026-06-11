@@ -1,8 +1,9 @@
-import { useRef, useMemo } from "react";
+import { useRef } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import { SearchX } from "lucide-react";
 import { AppCard } from "@/components/apps/AppCard";
 import { EmptyState } from "@/components/common/EmptyState";
+import { useResponsiveColumns } from "@/hooks/useResponsiveColumns";
 import type { WingetPackage } from "@/types/package";
 
 interface VirtualizedAppGridProps {
@@ -15,9 +16,8 @@ interface VirtualizedAppGridProps {
   emptyDescription?: string;
 }
 
-const CARD_HEIGHT = 200; // estimated row height in px
-const GAP = 16; // gap between rows
-
+const CARD_HEIGHT = 196; // estimated row height in px
+const GAP = 12;
 
 export function VirtualizedAppGrid({
   packages,
@@ -29,32 +29,19 @@ export function VirtualizedAppGrid({
   emptyDescription = "Try a different search term or browse all packages.",
 }: VirtualizedAppGridProps) {
   const parentRef = useRef<HTMLDivElement>(null);
+  // Fix: use ResizeObserver-based hook instead of one-shot window.innerWidth calc
+  const columns = useResponsiveColumns(parentRef);
 
-  // Calculate columns based on container width
-  const columns = useMemo(() => {
-    // Default to 3 columns, recalculate isn't needed for SSR
-    // These match the Tailwind classes: sm:2, lg:3, xl:4
-    if (typeof window === "undefined") return 3;
-    const w = window.innerWidth;
-    if (w >= 1280) return 4; // xl
-    if (w >= 1024) return 3; // lg
-    if (w >= 640) return 2; // sm
-    return 1;
-  }, []);
-
-  const rows = useMemo(() => {
-    const result: WingetPackage[][] = [];
-    for (let i = 0; i < packages.length; i += columns) {
-      result.push(packages.slice(i, i + columns));
-    }
-    return result;
-  }, [packages, columns]);
+  const rows: WingetPackage[][] = [];
+  for (let i = 0; i < packages.length; i += columns) {
+    rows.push(packages.slice(i, i + columns));
+  }
 
   const virtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => CARD_HEIGHT + GAP,
-    overscan: 3,
+    overscan: 4,
   });
 
   if (packages.length === 0) {
@@ -68,7 +55,7 @@ export function VirtualizedAppGrid({
   }
 
   return (
-    <div ref={parentRef} className="h-full overflow-y-auto pr-1 pb-8">
+    <div ref={parentRef} className="h-full overflow-y-auto pb-8 pr-1">
       <div
         style={{
           height: `${virtualizer.getTotalSize()}px`,
@@ -91,7 +78,7 @@ export function VirtualizedAppGrid({
               }}
             >
               <div
-                className="grid gap-4"
+                className="grid gap-3"
                 style={{
                   gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`,
                 }}

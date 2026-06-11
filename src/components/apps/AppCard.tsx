@@ -37,11 +37,18 @@ export function AppCard({
   const installed = installedIds?.has(pkg.id) ?? pkg.installed;
   const isInstalling = job?.status === "running" || job?.status === "queued";
 
+  const handleNavigate = () =>
+    navigate(`/app/${encodeURIComponent(pkg.id)}`, { state: { pkg } });
+
   return (
     <article
       className={cn(
-        "group flex flex-col rounded-xl border border-border bg-card p-4 transition-colors hover:border-muted-foreground/25",
-        selected && "ring-2 ring-primary ring-offset-2 ring-offset-background",
+        "group relative flex flex-col rounded-lg border border-border bg-card p-4",
+        "transition-[border-color,box-shadow] duration-[140ms] ease-out",
+        "hover:border-border hover:shadow-[0_2px_8px_rgba(0,0,0,0.06)]",
+        "dark:hover:shadow-[0_2px_8px_rgba(0,0,0,0.18)]",
+        selected &&
+          "ring-2 ring-primary ring-offset-1 ring-offset-background",
       )}
     >
       {selectable && (
@@ -49,25 +56,23 @@ export function AppCard({
           type="checkbox"
           checked={selected}
           onChange={onToggleSelect}
-          className="absolute right-3 top-3 h-4 w-4 rounded border-border accent-primary"
+          className="absolute right-3 top-3 h-4 w-4 cursor-pointer rounded border-border accent-primary"
           aria-label={`Select ${pkg.name}`}
         />
       )}
 
-      {/* Clickable content area */}
+      {/* Clickable content region */}
       <div
         role="link"
         tabIndex={0}
-        onClick={() =>
-          navigate(`/app/${encodeURIComponent(pkg.id)}`, { state: { pkg } })
-        }
+        onClick={handleNavigate}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
-            navigate(`/app/${encodeURIComponent(pkg.id)}`, { state: { pkg } });
+            handleNavigate();
           }
         }}
-        className="flex flex-1 cursor-pointer flex-col gap-3"
+        className="flex flex-1 cursor-pointer flex-col gap-3 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-md"
       >
         <div className="flex items-start gap-3">
           <AppIcon
@@ -76,55 +81,71 @@ export function AppCard({
             website={pkg.homepage}
             className="h-10 w-10 shrink-0 rounded-lg"
           />
-          <div className="min-w-0 flex-1">
-            <h3 className="truncate text-sm font-semibold tracking-tight">
+          <div className="min-w-0 flex-1 pt-0.5">
+            <h3 className="truncate text-sm font-semibold leading-tight tracking-tight">
               <HighlightText text={pkg.name} query={query} />
             </h3>
-            <p className="truncate text-xs text-muted-foreground">
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">
               <HighlightText text={displayPublisher(pkg)} query={query} />
             </p>
           </div>
         </div>
 
-        <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground min-h-[32px]">
+        <p className="line-clamp-2 min-h-[32px] text-xs leading-relaxed text-muted-foreground">
           {pkg.description || "No description available."}
         </p>
       </div>
 
-      {/* Action row */}
+      {/* Footer action row */}
       <div className="mt-3 flex items-center justify-between gap-2 border-t border-border pt-3">
         <span
-          className="truncate text-[10px] font-mono text-muted-foreground/50 max-w-[120px]"
+          className="max-w-[120px] truncate font-mono text-[10px] text-muted-foreground/40"
           title={pkg.id}
         >
           {pkg.id}
         </span>
         <div className="flex items-center gap-1">
+          {/* Favorite — only visible on hover/focus */}
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 shrink-0 opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
-            onClick={() => toggleFavorite(pkg.id)}
+            className={cn(
+              "h-7 w-7 shrink-0 transition-opacity duration-[140ms]",
+              isFavorite
+                ? "opacity-100"
+                : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100",
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleFavorite(pkg.id);
+            }}
             aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
           >
             <Heart
               className={cn(
-                "h-3.5 w-3.5 text-muted-foreground",
-                isFavorite && "fill-destructive text-destructive",
+                "h-3.5 w-3.5",
+                isFavorite
+                  ? "fill-destructive text-destructive"
+                  : "text-muted-foreground",
               )}
             />
           </Button>
+
+          {/* Install button */}
           <Button
             size="sm"
             variant={installed ? "secondary" : "default"}
-            className="h-7 rounded-md px-2.5 text-xs"
+            className="h-7 min-w-[80px] rounded-md px-2.5 text-xs active:scale-[0.97]"
             disabled={installed || isInstalling}
-            onClick={() => enqueue(pkg.id, pkg.name)}
+            onClick={(e) => {
+              e.stopPropagation();
+              enqueue(pkg.id, pkg.name);
+            }}
           >
             {isInstalling ? (
               <>
                 <Loader2 className="h-3 w-3 animate-spin" />
-                Installing…
+                Installing
               </>
             ) : installed ? (
               <>
