@@ -1,7 +1,7 @@
 [package]
-name = "wingit"
+name = "WinGit"
 version = "0.1.0"
-description = "A Tauri App"
+description = "Modern graphical interface for Windows Package Manager (winget)"
 authors = ["you"]
 edition = "2021"
 license = "GPL-3.0-or-later"
