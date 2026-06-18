@@ -72,7 +72,7 @@ To build WinGit locally or contribute to the repository:
 ### Local Setup
 Clone the repository and install dependencies:
 ```bash
-git clone https://github.com/Ankits39229/wingit.git
+git clone https://github.com/My-Technician/wingit.git
 cd wingit
 npm install
 ```
